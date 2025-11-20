@@ -19,7 +19,7 @@ export const createUserController = async (req, res) => {
 
     const user = await createUser(req.body);
     
-    const token = genToken(user);
+    const token = genToken(user._id.toString());
 
     return res.status(201).json({ user, token });
   } catch (error) {
@@ -48,7 +48,7 @@ export const loginUserController = async (req, res) => {
       return res.status(400).json({ message: "Password is incorrect" });
     }
 
-    const token = genToken(user);
+    const token = genToken(user._id.toString());
 
     return res.status(200).json({ user, token });
   } catch (error) {
