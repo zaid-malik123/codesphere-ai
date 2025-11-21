@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import redisClient from "../services/redis.service.js";
 
 export const isAuth = async (req, res, next) => {
   try {
@@ -7,6 +8,16 @@ export const isAuth = async (req, res, next) => {
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const isBlackListed = await redisClient.get(token)
+    if(isBlackListed){
+      
+      res.cookie("token", "")
+
+      return res.status(400).json({
+        message: "This token is expired"
+      })
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
