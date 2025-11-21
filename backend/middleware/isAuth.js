@@ -5,7 +5,7 @@ export const isAuth = async (req, res, next) => {
   try {
     
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
-
+  
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -15,14 +15,13 @@ export const isAuth = async (req, res, next) => {
       
       res.cookie("token", "")
 
-      return res.status(400).json({
+      return res.status(401).json({
         message: "This token is expired"
       })
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    req.user = decoded;
+    req.userId = decoded.userId;
 
     next();
   } catch (error) {

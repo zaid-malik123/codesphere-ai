@@ -23,6 +23,12 @@ export const createUserController = async (req, res) => {
     const user = await createUser(req.body);
 
     const token = genToken(user._id.toString());
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 3 * 24 * 60 * 60 * 1000
+    })
 
     return res.status(201).json({ user, token });
   } catch (error) {
@@ -52,6 +58,12 @@ export const loginUserController = async (req, res) => {
     }
 
     const token = genToken(user._id.toString());
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 3 * 24 * 60 * 60 * 1000
+    })
 
     return res.status(200).json({ user, token });
   } catch (error) {
@@ -73,12 +85,31 @@ export const logOutController = (req, res) => {
   try {
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
-    redisClient.set(token, "logout", "EX", 3 * 24 * 60 * 60 * 1000)
-    
-    res.status(200).json({
-      message: "logout successfully"
-    })
+    redisClient.set(token, "logout", "EX", 3 * 24 * 60 * 60);
 
+    res.status(200).json({
+      message: "logout successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error);
+  }
+};
+
+export const currentUserController = async (req, res) => {
+  try {
+    const userId = req.userId;
+ 
+    if (!userId) {
+      return res.status(400).json("Please provide any user ID");
+    }
+
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(400).json("This user does not exist");
+    }
+
+    return res.status(200).json(user);
   } catch (error) {
     console.log(error);
     return res.status(500).json(error);

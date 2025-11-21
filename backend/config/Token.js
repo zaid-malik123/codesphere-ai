@@ -7,6 +7,6 @@ export const genToken = (userId) => {
     });
     return token;
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    throw new Error(error.message);
   }
 };

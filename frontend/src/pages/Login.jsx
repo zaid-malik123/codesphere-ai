@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
+import { useContext } from 'react'
+import { UserDataContext } from '../context/UserContext'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -9,7 +11,7 @@ const Login = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const navigate = useNavigate()
-
+  const [setUser] = useContext(UserDataContext)
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
@@ -26,9 +28,9 @@ const Login = () => {
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/users/login`, {
         email,
         password
-      })
-
-      console.log(response.data)
+      },{withCredentials: true})
+      
+      setUser(response.data.user)
       
       setTimeout(() => {
         navigate('/')

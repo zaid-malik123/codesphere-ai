@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { useContext } from 'react'
+import { UserDataContext } from '../context/UserContext'
 
 const Signup = () => {
   const [email, setEmail] = useState('')
@@ -9,6 +11,7 @@ const Signup = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const navigate = useNavigate()
+  const { setUser } = useContext(UserDataContext)
 
   const handleSignup = async (e) => {
     e.preventDefault()
@@ -32,9 +35,10 @@ const Signup = () => {
        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/users/register`, {
         email,
         password
-      })
+      }, {withCredentials: true})
+      setUser(res.data.user)
       navigate("/")
-     console.log(res.data.user)
+    
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed. Please try again.')
     } finally {
