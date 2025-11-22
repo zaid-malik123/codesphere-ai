@@ -36,6 +36,7 @@ const Signup = () => {
         email,
         password
       }, {withCredentials: true})
+      localStorage.setItem("token", res.data.token)
       setUser(res.data.user)
       navigate("/")
     

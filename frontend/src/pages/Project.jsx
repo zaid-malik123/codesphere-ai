@@ -2,6 +2,7 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import SideBar from "../components/SideBar"
+import MainFeed from "../components/MainFeed"
 
 const Project = () => {
   const {projectId} = useParams()
@@ -16,9 +17,13 @@ const Project = () => {
   }, [])
   
   return (
-    <div className="h-screen w-screen flex">
+    <div className="h-screen w-screen flex bg-black">
        <section className="left h-full w-[30%]">
           <SideBar projectData={projectData} />
+       </section>
+
+       <section className="right h-full w-[70%] ">
+        <MainFeed/>
        </section>
     </div>
   )

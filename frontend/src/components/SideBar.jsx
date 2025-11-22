@@ -1,14 +1,22 @@
 import React, { useState } from "react";
 import { RiUserAddLine, RiSendPlane2Line, RiCloseLine } from "react-icons/ri";
+import { IoArrowBackSharp } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 export default function SideBar({ projectData }) {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate()
 
   return (
     <div className="w-full h-full bg-[#0f0f0f] border-r border-gray-700 flex flex-col relative overflow-hidden text-gray-200">
       
       {/* Header */}
       <div className="p-4 flex items-center justify-between border-b border-gray-700">
+
+         <div onClick={() => navigate("/")}>
+          <IoArrowBackSharp size={20} />
+        </div>
+
         <div
           className="flex items-center gap-2 cursor-pointer hover:text-blue-400"
           onClick={() => setOpen(true)}
@@ -16,6 +24,7 @@ export default function SideBar({ projectData }) {
           <RiUserAddLine className="text-xl" />
           <h2 className="font-semibold text-lg">Collaborators</h2>
         </div>
+
       </div>
 
       {/* Collaborators Panel */}

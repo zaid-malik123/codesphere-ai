@@ -32,6 +32,7 @@ const Login = () => {
       },{withCredentials: true})
       
       setUser(response?.data?.user)
+      localStorage.setItem("token", response.data.token)
       
       setTimeout(() => {
         navigate('/')
