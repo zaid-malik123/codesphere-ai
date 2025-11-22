@@ -1,7 +1,8 @@
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { UserDataContext } from "../context/UserContext"
-import { FaPlus } from "react-icons/fa6";
+import { FaPlus, FaUsers, FaFolderOpen, FaTrash, FaUserPlus } from "react-icons/fa6";
 import axios from "axios"
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const { user: _user } = useContext(UserDataContext)
@@ -10,6 +11,8 @@ const Home = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [project, setProject] = useState([])
+  const navigate = useNavigate()
 
   const handleCreateProject = async (e) => {
     e.preventDefault()
@@ -29,7 +32,7 @@ const Home = () => {
         { name: projectName },
         { withCredentials: true }
       )
-      console.log(res.data)
+      setProject([...project, res.data])
       setSuccess("Project created successfully!")
       setProjectName("")
       
@@ -45,17 +48,119 @@ const Home = () => {
     }
   }
 
+  useEffect(() => {
+      axios.get(`${import.meta.env.VITE_BASE_URL}/api/project/all`, {withCredentials:true}).then((res) => {
+       console.log(res.data) 
+       setProject(res.data)
+    }).catch((err)=> {
+      console.log(err)
+    })
+
+  }, [])
+
   return (
-    <div>
-      <main className="p-4 bg-black min-h-screen w-full">
-        <div>
+    <div className="bg-black min-h-screen w-full">
+      <main className="p-8 max-w-6xl mx-auto">
+        {/* Header Section */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">My Projects</h1>
+          <p className="text-gray-400">Manage and collaborate on your projects</p>
+        </div>
+
+        {/* New Project Button */}
+        <div className="mb-8">
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition transform hover:scale-105"
           >
-            <FaPlus />
+            <FaPlus size={18} />
             New Project
           </button>
+        </div>
+
+        {/* Projects Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {project && project.length > 0 ? (
+            project.map((proj) => (
+              <div
+                key={proj._id}
+                className="bg-linear-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 hover:border-blue-500 p-6 transition transform hover:scale-105 shadow-lg"
+              >
+                {/* Project Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <FaFolderOpen size={24} className="text-blue-400" />
+                    <h3 className="text-xl font-bold text-white truncate">{proj.name}</h3>
+                  </div>
+                  <button className="p-2 hover:bg-gray-700 rounded-lg transition text-red-400 hover:text-red-300">
+                    <FaTrash size={16} />
+                  </button>
+                </div>
+
+                {/* Project Info */}
+                <div className="mb-6 pb-4 border-b border-gray-700">
+                  <p className="text-sm text-gray-400">
+                    Project ID: <span className="text-gray-300 font-mono text-xs">{proj._id.slice(0, 8)}...</span>
+                  </p>
+                </div>
+
+                {/* Collaborators Section */}
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FaUsers size={16} className="text-purple-400" />
+                    <h4 className="font-semibold text-gray-200">
+                      Collaborators ({proj.users?.length || 0})
+                    </h4>
+                  </div>
+
+                  {/* Collaborators Avatar Group */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {proj.users && proj.users.length > 0 ? (
+                      proj.users.slice(0, 5).map((user, idx) => (
+                        <div
+                          key={user._id || idx}
+                          className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold border-2 border-gray-700 hover:border-blue-400 transition cursor-pointer"
+                          title={user.email}
+                        >
+                          {user.email ? user.email.charAt(0).toUpperCase() : "?"}
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-400">No collaborators yet</p>
+                    )}
+                    {proj.users && proj.users.length > 5 && (
+                      <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-xs text-gray-300 border-2 border-gray-600">
+                        +{proj.users.length - 5}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2">
+                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm font-medium">
+                    <FaUserPlus size={14} />
+                    Add User
+                  </button>
+                  <button onClick={() => navigate(`/project/${proj._id}`)} className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition text-sm font-medium">
+                    Open
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+              <FaFolderOpen size={48} className="text-gray-600 mb-4" />
+              <p className="text-gray-400 text-lg">No projects yet</p>
+              <p className="text-gray-500 text-sm mb-4">Create your first project to get started</p>
+              <button
+                onClick={() => setShowModal(true)}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+              >
+                Create Project
+              </button>
+            </div>
+          )}
         </div>
       </main>
 

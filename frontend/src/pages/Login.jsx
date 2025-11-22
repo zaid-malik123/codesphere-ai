@@ -11,7 +11,8 @@ const Login = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const navigate = useNavigate()
-  const [setUser] = useContext(UserDataContext)
+  const {setUser} = useContext(UserDataContext)
+  
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
@@ -30,7 +31,7 @@ const Login = () => {
         password
       },{withCredentials: true})
       
-      setUser(response.data.user)
+      setUser(response?.data?.user)
       
       setTimeout(() => {
         navigate('/')

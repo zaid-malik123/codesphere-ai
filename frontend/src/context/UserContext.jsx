@@ -13,7 +13,6 @@ const UserContext = ({ children }) => {
         { withCredentials: true }
       );
 
-      console.log(res.data);
       setUser(res.data);
     } catch (error) {
       console.log(error);
