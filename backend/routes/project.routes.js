@@ -3,6 +3,7 @@ import {
   addUserToProject,
   createProjectController,
   getAllProjectController,
+  getProjectById,
 } from "../controllers/project.controller.js";
 import { body } from "express-validator";
 import { isAuth } from "../middleware/isAuth.js";
@@ -30,6 +31,8 @@ router.put(
   isAuth,
   addUserToProject
 );
+
+router.get("/get-project/:projectId", isAuth, getProjectById)
 
 
 export default router;

@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createUserController,
   currentUserController,
+  getAllUsers,
   loginUserController,
   logOutController,
   profileController,
@@ -36,5 +37,7 @@ router.get("/profile", isAuth, profileController)
 router.get("/logout", isAuth ,logOutController)
 
 router.get("/currentUser", isAuth, currentUserController)
+
+router.get("/all", isAuth, getAllUsers)
 
 export default router;

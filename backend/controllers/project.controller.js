@@ -65,8 +65,6 @@ export const addUserToProject = async (req, res) => {
     // FIX: object destructuring (NOT array destructuring)
     const { users, projectId } = req.body;
 
-    console.log("Incoming data:", req.body);
-
     const project = await addUsersToProjects({ users, projectId, userId });
 
     return res.status(200).json(project);
@@ -84,3 +82,27 @@ export const addUserToProject = async (req, res) => {
   }
 };
 
+export const getProjectById = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { projectId } = req.params; // FIXED
+
+    if (!projectId) {
+      return res.status(400).json("Project Id is required");
+    }
+
+    const project = await Project.findById(projectId).populate("users");
+
+    if (!project) {
+      return res.status(404).json("Project not found");
+    }
+
+    return res.status(200).json(project);
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+    });
+  }
+};

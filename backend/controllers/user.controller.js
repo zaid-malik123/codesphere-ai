@@ -115,3 +115,16 @@ export const currentUserController = async (req, res) => {
     return res.status(500).json(error);
   }
 };
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const userId = req.userId
+    const users = await User.find({_id : {$ne : userId}})
+    
+    return res.status(200).json(users)
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error);
+  }
+}
