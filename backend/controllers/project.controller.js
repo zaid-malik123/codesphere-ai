@@ -65,6 +65,8 @@ export const addUserToProject = async (req, res) => {
     // FIX: object destructuring (NOT array destructuring)
     const { users, projectId } = req.body;
 
+    
+
     const project = await addUsersToProjects({ users, projectId, userId });
 
     return res.status(200).json(project);
