@@ -5,6 +5,7 @@ import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import Project from "./models/project.model.js";
+import { generateResult } from "./services/ai.service.js";
 
 const server = http.createServer(app);
 
@@ -19,7 +20,6 @@ io.use(async (socket, next) => {
   try {
     const token = socket.handshake.auth.token;
     const projectId = socket.handshake.query.projectId;
-    console.log("THIS IS THE PROJECT ID :-", projectId)
     if (!token) throw new Error("Token missing");
     if (!mongoose.Types.ObjectId.isValid(projectId))
       throw new Error("Invalid project ID");
@@ -49,13 +49,30 @@ io.on("connection", (socket) => {
   socket.join(roomId);
 
   // RECEIVING MSG
-  socket.on("project-message", (data) => {
+  socket.on("project-message", async (data) => {
+    if (data.message.includes("@ai")) {
+      const prompt = data.message.replace("@ai", "").trim();
+
+      const result = await generateResult(prompt);
+
+      // Convert AI JSON object → Pretty Markdown
+      const markdown = "```json\n" + JSON.stringify(result, null, 2) + "\n```";
+
+      io.to(roomId).emit("project-message", {
+        message: markdown,
+        fromAI: true,
+      });
+
+      return;
+    }
 
     socket.broadcast.to(roomId).emit("project-message", data);
   });
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+
+    socket.leave(socket.roomId);
   });
 });
 

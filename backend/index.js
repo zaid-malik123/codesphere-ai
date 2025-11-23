@@ -8,6 +8,7 @@ import cors from "cors"
 import { connectDb } from "./db/db.js"
 import userRoutes from "./routes/user.routes.js"
 import projectRoutes from "./routes/project.routes.js"
+import aiRoute from "./routes/ai.routes.js"
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use(cors(
 //routes
 app.use("/api/users", userRoutes)
 app.use("/api/project", projectRoutes)
+app.use("/api/ai", aiRoute)
 
 // data base connectivity 
 connectDb()

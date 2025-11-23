@@ -3,6 +3,7 @@ import { RiUserAddLine, RiSendPlane2Line, RiCloseLine } from "react-icons/ri";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { onSocketReady, sendMessage as socketEmit } from "../config/socket";
+import ReactMarkdown from "react-markdown";
 
 export default function SideBar({ projectData }) {
   const [open, setOpen] = useState(false);
@@ -11,14 +12,23 @@ export default function SideBar({ projectData }) {
   const navigate = useNavigate();
 
   // Listen real-time messages
- useEffect(() => {
-  onSocketReady((socket) => {
-    socket.on("project-message", (data) => {
-      setChat((prev) => [...prev, { myself: false, text: data.message }]);
+  useEffect(() => {
+    onSocketReady((socket) => {
+      socket.on("project-message", (data) => {
+        if (data.fromAI) {
+          setChat((prev) => [
+            ...prev,
+            { myself: false, ai: true, text: data.message },
+          ]);
+        } else {
+          setChat((prev) => [
+            ...prev,
+            { myself: false, ai: false, text: data.message },
+          ]);
+        }
+      });
     });
-  });
-}, []);
-
+  }, []);
 
   // Send message
   const handleSendMessage = () => {
@@ -34,7 +44,6 @@ export default function SideBar({ projectData }) {
 
   return (
     <div className="w-full h-full bg-[#0f0f0f] border-r border-gray-700 flex flex-col relative text-gray-200">
-
       {/* Header */}
       <div className="p-4 flex items-center justify-between border-b border-gray-700">
         <div onClick={() => navigate("/")}>
@@ -50,10 +59,10 @@ export default function SideBar({ projectData }) {
         </div>
       </div>
 
-      {/* Collaborators */}
+      {/* Collaborators Panel */}
       <div
-        className={`absolute top-0 left-0 w-full  h-full bg-[#1a1a1a] z-20 p-4 transition-all ${
-          open ? "translate-x-0 block " : "translate-x-full hidden"
+        className={`absolute top-0 left-0 w-full h-full bg-[#1a1a1a] z-20 p-4 transition-all ${
+          open ? "translate-x-0 block" : "translate-x-full hidden"
         }`}
       >
         <div className="flex items-center justify-between border-b border-gray-700 pb-3">
@@ -81,18 +90,24 @@ export default function SideBar({ projectData }) {
         {chat.map((msg, index) => (
           <div
             key={index}
-            className={`p-3 rounded-xl max-w-[80%] shadow-sm ${
+            className={`p-3 rounded-xl max-w-[80%] shadow-sm whitespace-pre-wrap break-words ${
               msg.myself
                 ? "bg-blue-600 text-white ml-auto"
+                : msg.ai
+                ? "bg-[#333] text-green-300"
                 : "bg-[#222] text-gray-300"
             }`}
           >
-            {msg.text}
+            {msg.ai ? (
+              <ReactMarkdown>{msg.text}</ReactMarkdown>
+            ) : (
+              msg.text
+            )}
           </div>
         ))}
       </div>
 
-      {/* Input */}
+      {/* Input Bar */}
       <div className="p-3 border-t border-gray-700 flex items-center gap-2 bg-[#0f0f0f]">
         <input
           value={message}
